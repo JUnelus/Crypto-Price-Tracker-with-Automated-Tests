@@ -1,20 +1,30 @@
 import requests
 
-def get_crypto_price(symbol):
-    """Fetches the current price of a cryptocurrency from a public API."""
+def get_crypto_prices(symbols):
+    """Fetches the current prices of multiple cryptocurrencies from a public API."""
 
-    url = f"https://api.coingecko.com/api/v3/simple/price?ids={symbol}&vs_currencies=usd"
+    # Join the symbols into a comma-separated string for the API request
+    ids = ','.join(symbols)
+
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=usd"
     response = requests.get(url)
     data = response.json()
 
-    if symbol in data:
-        return data[symbol]['usd']
-    else:
-        return None  # Handle invalid symbol
+    prices = {}
+    for symbol in symbols:
+        if symbol in data:
+            prices[symbol] = float(data[symbol]['usd'])
+        else:
+            prices[symbol] = None  # Handle invalid symbol
 
-# Example usage
-price = get_crypto_price('bitcoin')
-if price:
-    print(f"The current price of Bitcoin is ${price}")
-else:
-    print("Invalid cryptocurrency symbol")
+    return prices
+
+# Example usage with a list of cryptocurrencies
+crypto_list = ['bitcoin', 'ethereum', 'dogecoin', 'litecoin']
+prices = get_crypto_prices(crypto_list)
+
+for symbol, price in prices.items():
+    if price:
+        print(f"The current price of {symbol} is ${price}")
+    else:
+        print(f"Invalid cryptocurrency symbol: {symbol}")
